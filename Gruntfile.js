@@ -16,7 +16,8 @@ module.exports = function (grunt) {
   require('jit-grunt')(grunt, {
     useminPrepare: 'grunt-usemin',
     ngtemplates: 'grunt-angular-templates',
-    cdnify: 'grunt-google-cdn'
+    cdnify: 'grunt-google-cdn',
+    ngconstant: 'grunt-ng-constant'
   });
 
   // Configurable paths for the application
@@ -224,7 +225,7 @@ module.exports = function (grunt) {
         src: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
         ignorePath: /(\.\.\/){1,2}bower_components\//
       }
-    }, 
+    },
 
     // Compiles Sass to CSS and generates necessary files if requested
     compass: {
@@ -456,6 +457,42 @@ module.exports = function (grunt) {
         configFile: 'test/karma.conf.js',
         singleRun: true
       }
+    },
+
+
+    ngconstant: {
+      // Options for all targets
+      options: {
+        space: '  ',
+        wrap: '\'use strict\';\n\n {%= __ngModule %}',
+        name: 'app-config' // Name of the angular module to inject in the angular application
+      },
+      // Environment targets
+      local: {
+        options: {
+          dest: '<%= yeoman.app %>/scripts/config.module.js'
+        },
+        constants: {
+          Environment: { // ENV is the service which we inject into the application to access these keys
+           isHttps: false,
+            apiEndpoint: 'http://localhost/',
+            backendContext:''
+          }
+        }
+      },
+      dev: {
+        options: {
+          dest: '<%= yeoman.app %>/scripts/config.module.js'
+        },
+        constants: {
+          Environment: { // ENV is the service which we inject into the application to access these keys
+            isHttps: false,
+            apiEndpoint: '',
+            backendContext:''
+          }
+        }
+      }
+
     }
   });
 
@@ -467,6 +504,7 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
+      'ngconstant:local',
       'wiredep',
       'concurrent:server',
       'postcss:server',
